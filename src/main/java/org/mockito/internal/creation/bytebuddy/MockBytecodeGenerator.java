@@ -1,7 +1,6 @@
 package org.mockito.internal.creation.bytebuddy;
 
 import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.ClassFileVersion;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.ModifierResolver;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
@@ -15,6 +14,7 @@ import net.bytebuddy.implementation.attribute.TypeAttributeAppender;
 import org.mockito.internal.creation.bytebuddy.ByteBuddyCrossClassLoaderSerializationSupport.CrossClassLoaderSerializableMock;
 import org.mockito.internal.creation.bytebuddy.MockMethodInterceptor.DispatcherDefaultingToRealMethod;
 import org.mockito.internal.creation.bytebuddy.MockMethodInterceptor.MockAccess;
+import org.mockito.internal.util.Platform;
 
 import java.util.Random;
 
@@ -64,21 +64,12 @@ class MockBytecodeGenerator {
     // TODO inspect naming strategy (for OSGI, signed package, java.* (and bootstrap classes), etc...)
     private String nameFor(Class<?> type) {
         String typeName = type.getName();
-        if (isComingFromJDK(type)
+        if (Platform.isComingFromJDK(type)
                 || isComingFromSignedJar(type)
                 || isComingFromSealedPackage(type)) {
             typeName = "codegen." + typeName;
         }
         return String.format("%s$%s$%d", typeName, "MockitoMock", Math.abs(random.nextInt()));
-    }
-
-    private boolean isComingFromJDK(Class<?> type) {
-        // Comes from the manifest entry :
-        // Implementation-Title: Java Runtime Environment
-        // This entry is not necessarily present in every jar of the JDK
-        return type.getPackage() != null && "Java Runtime Environment".equalsIgnoreCase(type.getPackage().getImplementationTitle())
-                || type.getName().startsWith("java.")
-                || type.getName().startsWith("javax.");
     }
 
     private boolean isComingFromSealedPackage(Class<?> type) {
