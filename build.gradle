@@ -91,9 +91,9 @@ shadowJar {
 //    baseName = 'mockito-core'
     classifier = null
     // don't work
-//    manifest {
-//        inheritFrom project.tasks.jar
-//    }
+    manifest {
+        inheritFrom project.tasks.jar
+    }
     relocate 'com.blogspot.mydailyjava.weaklockfree', 'org.mockito.internal.util.concurrent'
     dependencies() {
         include(dependency('com.blogspot.mydailyjava:weak-lock-free'))
